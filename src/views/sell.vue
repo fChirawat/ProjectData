@@ -1,5 +1,5 @@
 <template>
-    <Navbar />
+  <Navbar />
   <div class="app-container">
     <div class="container">
       <form @submit.prevent="submitForm">
@@ -7,16 +7,16 @@
         <div class="form-group">
           <label for="productName">หัวข้อสินค้าที่คุณต้องการขาย*</label>
           <input
-            v-model="productName"
+            v-model="product_name"
             type="text"
             id="productName"
             class="form-control"
-            :class="{ 'is-invalid': errors.productName }"
+            :class="{ 'is-invalid': errors.product_name }"
             placeholder="ชื่อสินค้าเช่น เสื้อบอลสภาพเหมือนใหม่"
             @input="validateProductName"
           />
         </div>
-        <small class="text-danger small-text" v-if="errors.productName">ไม่ควรใส่อักขระพิเศษ เช่น &*#^</small>
+        <small class="text-danger small-text" v-if="errors.product_name">ไม่ควรใส่อักขระพิเศษ เช่น &*#^</small>
 
         <!-- เลือกหมวดหมู่ -->
         <div class="form-group">
@@ -37,7 +37,7 @@
         <div class="form-group">
           <label>รูปภาพสินค้า*</label>
           <div class="upload-container">
-            <input type="file" @change="handleImageUpload" multiple />
+            <input type="file" @change="handleFileUpload" multiple />
           </div>
         </div>
         <small class="small-text text-danger" v-if="images.length > 15">ใส่รูปได้สูงสุด 15 รูป</small>
@@ -45,21 +45,16 @@
         <!-- รายละเอียดสินค้า -->
         <div class="form-group">
           <label for="description">รายละเอียดสินค้า</label>
-          <textarea v-model="description" id="description" class="form-control" placeholder="ข้อมูลเพิ่มเติม เช่น สภาพสินค้า สี อายุการใช้งาน ระยะประกัน"></textarea>
+          <textarea v-model="product_description" id="description" class="form-control" placeholder="ข้อมูลเพิ่มเติม เช่น สภาพสินค้า สี อายุการใช้งาน ระยะประกัน"></textarea>
         </div>
 
         <!-- พื้นที่ของสินค้า -->
         <div class="form-group">
           <label for="location">ระบุพื้นที่ของสินค้า*</label>
           <div class="location-select">
-            <select v-model="location.province" @change="fetchDistricts" class="form-control">
+            <select v-model="product_location" class="form-control">
               <option disabled value="">เลือกจังหวัด</option>
               <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
-            </select>
-
-            <select v-model="location.district" class="form-control">
-              <option disabled value="">เลือกอำเภอ</option>
-              <option v-for="district in districts" :key="district" :value="district">{{ district }}</option>
             </select>
           </div>
         </div>
@@ -68,7 +63,7 @@
         <div class="form-group">
           <label for="phone">เบอร์โทรศัพท์ติดต่อ*</label>
           <input
-            v-model="phone"
+            v-model="phone_number"
             type="tel"
             id="phone"
             class="form-control"
@@ -76,12 +71,11 @@
             @input="validatePhoneNumber"
           />
         </div>
-        <small class="text-danger small-text" v-if="errors.phone">กรุณาใส่เบอร์โทรที่คุณใช้สมัครสมาชิก</small>
+        <small class="text-danger small-text" v-if="errors.phone_number">กรุณาใส่เบอร์โทรที่คุณใช้สมัครสมาชิก</small>
 
         <!-- ปุ่มส่งฟอร์ม -->
         <div class="form-group button-group">
-          <p class="terms-text">คลิกปุ่ม ”ต่อไป” เพื่อยอมรับ <a href="#">ข้อกำหนดและเงื่อนไข</a></p>
-          <button type="submit" class="btn-next">ต่อไป</button>
+          <button type="submit" class="btn-next">ยืนยันการขาย</button>
         </div>
       </form>
     </div>
@@ -92,6 +86,7 @@
 <script>
 import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
+import axios from 'axios';
 
 export default {
   name: "sell",
@@ -101,78 +96,80 @@ export default {
   },
   data() {
     return {
-      productName: '',
+      product_name: '',
       category: '',
       price: '',
       images: [],
-      description: '',
-      location: {
-        province: '',
-        district: '',
-      },
-      phone: '',
+      product_description: '',
+      product_location: '',
+      phone_number: '',
       errors: {
-        productName: false,
-        phone: false,
+        product_name: false,
+        phone_number: false,
       },
       categories: ['หมวก', 'เสื้อ', 'กางเกง', 'รองเท้า', 'สร้อยคอ', 'แหวน', 'กำไลข้อมือ', 'ต่างหู'],
       provinces: ['กรุงเทพฯ', 'เชียงใหม่', 'ภูเก็ต'],
-      districts: [],
     };
   },
   methods: {
     validateProductName() {
       const regex = /^[\u0E00-\u0E7Fa-zA-Z0-9\s\-_]+$/;
-      this.errors.productName = !regex.test(this.productName);
+      this.errors.product_name = !regex.test(this.product_name);
     },
-    handleImageUpload(event) {
+    handleFileUpload(event) {
       const files = event.target.files;
       if (files.length > 15) {
         return;
       }
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.images.push(e.target.result);
-        };
-        reader.readAsDataURL(files[i]);
-      }
-    },
-    fetchDistricts() {
-      if (this.location.province === 'กรุงเทพฯ') {
-        this.districts = ['เขตดุสิต', 'เขตปทุมวัน'];
-      } else if (this.location.province === 'เชียงใหม่') {
-        this.districts = ['อำเภอเมืองเชียงใหม่', 'อำเภอสันทราย'];
-      }
+      this.images = files;
     },
     validatePhoneNumber() {
       const phoneRegex = /^08\d{8}$/;
-      this.errors.phone = !phoneRegex.test(this.phone);
+      this.errors.phone_number = !phoneRegex.test(this.phone_number);
     },
-    submitForm() {
-      if (!this.errors.productName && !this.errors.phone && this.images.length <= 15) {
-        // เก็บข้อมูลลงใน LocalStorage
-        localStorage.setItem('sellProductData', JSON.stringify({
-          productName: this.productName,
-          category: this.category,
-          price: this.price,
-          images: this.images,
-          description: this.description,
-          location: this.location,
-          phone: this.phone,
-        }));
+    async submitForm() {
+      if (!this.errors.product_name && !this.errors.phone_number && this.images.length <= 15) {
+        const formData = new FormData();
+        formData.append('product_name', this.product_name);
+        formData.append('category', this.category);
+        formData.append('price', this.price);
+        formData.append('product_description', this.product_description);
+        formData.append('product_location', this.product_location);
+        formData.append('phone_number', this.phone_number);
 
-        // นำทางไปยังหน้า ConSell โดยไม่ส่ง params ใหญ่เกินไป
-        this.$router.push({ name: 'ConSell' });
+        for (let i = 0; i < this.images.length; i++) {
+          formData.append('images', this.images[i]);
+        }
+
+        try {
+          await axios.post('http://localhost:5000/api/sell', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          alert('Product posted successfully!');
+          this.resetForm();
+        } catch (error) {
+          console.error('Error posting product:', error);
+          alert('Failed to post product: ' + (error.response.data.error || 'An unknown error occurred.'));
+        }
       } else {
         alert('กรุณากรอกข้อมูลให้ถูกต้อง');
       }
     },
+    
+    resetForm() {
+      this.product_name = '';
+      this.category = '';
+      this.price = '';
+      this.images = [];
+      this.product_description = '';
+      this.product_location = '';
+      this.phone_number = '';
+    },
   },
 };
 </script>
-
-
 
 <style scoped>
 html, body, #app {
@@ -198,7 +195,9 @@ html, body, #app {
   align-items: center;
   margin-bottom: 15px;
 }
-
+.MK{
+  text-decoration: underline;
+}
 label {
   width: 30%;
   margin-right: 10px;

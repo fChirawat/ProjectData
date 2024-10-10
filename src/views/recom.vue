@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
-    <RecommendedProducts />
-
+    <div class="recommended-products">
+      <h2 class="section-title">สินค้าเพิ่มเติม</h2>
+      <RecommendedProducts />
+    </div>
   </div>
   <Footer />
 </template>
@@ -28,4 +30,11 @@ html, body, #app {
     flex-direction: column;
     min-height: 100vh;
   }
+  .section-title {
+  margin-left: 185px;
+  font-size: 24px;
+}
+.recommended-products {
+  padding: 20px 0;
+}
 </style>

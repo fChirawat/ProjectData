@@ -4,7 +4,6 @@ import Prelogin from './views/Prelogin.vue';
 import Recommend from './views/recom.vue';
 import ProductDetail from '@/components/ProductDetail.vue';
 import Sell from '@/views/sell.vue';
-import Consell from '@/views/Consell.vue';
 import Register from './views/Register.vue';
 import Login from './views/Login.vue';
 
@@ -43,11 +42,6 @@ const routes = [
     path: '/sell',
     name: 'Sell',
     component: Sell
-  },
-  {
-    path: '/consell',
-    name: 'ConSell',
-    component: Consell
   }
   
 ];

@@ -12,11 +12,13 @@
         <!-- Dot navigation goes here -->
       </div>
     </div>
-<!-- หมวกหมู่ -->
-    <Categories />
+
     
 <!-- product -->
+<div class="recommended-products">
+  <h2 class="section-title">สินค้าแนะนำ</h2>
     <RecommendedProducts />
+  </div>
     <div class="more-pages">
       <router-link to="/recom" class="text-black">เพิ่มเติม</router-link>
     </div>
@@ -27,14 +29,12 @@
 
 <script>
 import Navbar from '@/components/Navbar.vue';  // ใช้ @ เพื่ออ้างอิงโฟลเดอร์ src
-import Categories from '@/components/Categories.vue';
 import RecommendedProducts from '@/components/RecommendedProducts.vue';
 import Footer from '@/components/Footer.vue';
 
 export default {
   components: {
     Navbar,
-    Categories,
     RecommendedProducts,
     Footer
   },
@@ -69,6 +69,9 @@ export default {
   justify-content: center;
 }
 
+.recommended-products {
+  padding: 20px 0;
+}
 .arrow-button {
   position: absolute;
   top: 50%;
@@ -79,7 +82,9 @@ export default {
   padding: 10px;
   z-index: 1;
 }
-
+.categories {
+    padding: 20px 0;
+  }
 .left-arrow {
   left: 10px;
 }
@@ -118,5 +123,10 @@ export default {
   padding: 5px 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+}
+
+.section-title {
+  margin-left: 185px;
+  font-size: 24px;
 }
 </style>

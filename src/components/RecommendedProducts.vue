@@ -1,34 +1,49 @@
 <template>
-  <div class="recommended-products">
-    <h2 class="section-title">สินค้าแนะนำ</h2>
+
     <div class="product-grid">
-      <div class="product-box" v-for="(product, index) in recommendedProducts" :key="index" @click="onProductClick(index)">
+      <div class="product-box" v-for="(product, index) in products" :key="index" @click="onProductClick(index)">
         <div class="like-button">❤️</div>
-        <img :src="product.image" :alt="product.name" class="product-image">
-        <p>{{ product.name }}</p>
-        <p>Price: {{ product.price }} บาท</p>
-        <p>{{ product.store }}</p>
+        <!-- Use getImageUrl to generate the correct image URL -->
+        <img :src="getImageUrl(product.product_image)" alt="Product Image" class="product-image" />
+        <p>{{ product.product_name }}</p>
+        <p>Category: {{ product.category }}</p>
+        <p>Price: {{product.price }} ฿</p>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script>
-import productAImage from '@/assets/product1.png';
+import axios from 'axios';
 
 export default {
-  data() {
-    return {
-      recommendedProducts: [
-        { name: 'Manchester United 23/24', image: productAImage, price: 1000, store: 'ร้านค้า 1' }
-      ]
-    };
-  },
-  methods: {
-    onProductClick(index) {
-      console.log("Selected product index:", index);
-    }
-  }
+    data() {
+        return {
+            products: [],
+        };
+    },
+    methods: {
+        async fetchProducts() {
+            try {
+                const response = await axios.get('http://localhost:5000/api/products');
+                this.products = response.data;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        },
+        getImageUrl(imagePath) {
+            return `http://localhost:5000${imagePath}`;
+        },
+        formatPrice(price) {
+            if (typeof price === 'number') {
+                return price.toFixed(2);
+            }
+            return 'N/A';
+        }
+    },
+    created() {
+        this.fetchProducts();
+    },
 };
 </script>
 
